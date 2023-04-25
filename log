@@ -1,0 +1,28 @@
+#!/bin/bash
+
+DATA_PATH=$HOME/.dte
+OUTPUT=$DATA_PATH/output
+DISPLAY=$DATA_PATH/display
+
+# Clear out output file
+> $OUTPUT
+
+# Add starting up text to display
+echo "Starting up..." > $DISPLAY
+
+# Wait 1 second before do anything next
+sleep 1
+
+while :
+do
+	OUT=$(tail -n 1 "$OUTPUT")
+	#echo output is $OUT
+	#echo $(date) > $DISPLAY
+	if [ ! -z "$OUT" ]
+	then
+		echo $OUT > $DISPLAY
+		#echo Show Command > $DISPLAY
+	fi
+	#$OUT > $DISPLAY
+	sleep 0.2
+done

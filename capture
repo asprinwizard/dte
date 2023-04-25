@@ -1,0 +1,22 @@
+#!/bin/bash
+
+APP_PATH=$(pwd)/dvgrab
+DATA_PATH=$HOME/.dte
+CAPTURE_DIR=$HOME/Videos
+DVGRAB_PARAMS="--buffers 10 --recordonly --autosplit --interactive"
+FFPLAY_PARAMS="drawtext=fontfile=/home/aspdenr/dte/fonts/arial.ttf:textfile=/home/aspdenr/.dte/display:reload=1:fontcolor=white:fontsize=24:box=1:boxcolor=black@0.5:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2"
+
+FILENAME=$1
+if [ -z "$FILENAME" ]
+then
+   FILENAME=dvgrab-
+fi
+
+#echo $FILENAME
+#exit
+#echo $CAPTURE_DIR/$FILENAME
+#echo $DATA_PATH/output
+#exit
+
+$APP_PATH $DVGRAB_PARAMS $CAPTURE_DIR/$FILENAME - 2> $DATA_PATH/output | ffplay -fflags nobuffer -autoexit -fs -vf "$FFPLAY_PARAMS" -i -
+

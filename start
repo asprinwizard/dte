@@ -1,0 +1,116 @@
+#!/bin/bash
+
+PACKAGES=('pqiv' 'xdotool')
+MISSING_PACKAGES=()
+
+for p in ${!PACKAGES[@]};
+do
+    PACKAGE=${PACKAGES[$p]};
+    PINFO=$(dpkg -l "$PACKAGE")
+    #echo $PINFO
+    if [ -z "$PINFO"]
+    then
+	echo Package $PACKAGE not installed
+	MISSING_PACKAGES+=( $PACKAGES )
+	#exit
+    fi
+done
+
+if [ ! -z "$MISSING_PACKAGES" ]; 
+then
+echo Please run the install script
+exit
+fi
+
+function cleanup {
+  killall -9 log
+}
+
+trap cleanup EXIT
+
+APP_PATH=$(pwd)
+#DATA_PATH=$HOME/.dte
+
+#function displayImage() {
+#    wmctrl -T master$$ -r :ACTIVE: ; pqiv -i --fullscreen $APP_PATH/images/$1 & sleep 0.1 ; wmctrl -a master$$
+#}
+
+function loadImages() {
+	pqiv -i --fullscreen --bind-key="a { goto_file_byindex(0) }" --bind-key="s { goto_file_byindex(1) }" images/please_stand_by.png images/no_signal_found.jpg & sleep 0.1; xdotool windowfocus $WID
+}
+
+function selectImage() {
+   xdotool windowactivate --sync $IMAGE_WID key $1;
+}
+
+WID=$(xdotool getwindowfocus)
+#echo $WID
+#exit
+loadImages
+sleep 2
+IMAGE_WID=$(xdotool search --name images)
+#echo IWID is $IMAGE_WID
+#exit
+#sleep 3
+
+#selectImage s
+
+#sleep 3
+#selectImage a
+#echo continuring on
+#exit
+#wmctrl -T master$$ -r :ACTIVE: ; pqiv --bind-key="a { goto_file_byindex(0) }" images & sleep 0.1 ; wmctrl -a master$$
+
+#displayImage please_stand_by.png
+#sleep 3
+#killall -9 pqiv
+#displayImage no_signal_found.jpg
+
+#echo a
+#echo "goto_file_byindex(1)" | pqiv images
+#exit
+
+#displayImage please_stand_by.png
+
+#pqiv --fullscreen $APP_PATH/images/please_stand_by.png
+
+#echo $APP_PATH
+#echo $DATA_PATH
+
+# Start logging
+cleanup
+$APP_PATH/log &
+
+NO_SIGNAL=0
+
+while : 
+do
+
+# See if anyting is connected
+MODEL_NAME=$(grep . /sys/bus/firewire/devices/fw1/model_name)
+
+if [ ! -z "$MODEL_NAME" ]
+then
+  selectImage a
+  sleep 0.5
+  VENDOR_NAME=$(grep . /sys/bus/firewire/devices/fw1/vendor_name)
+  echo Connected: $VENDOR_NAME $MODEL_NAME
+  FILENAME="${VENDOR_NAME,,}_${MODEL_NAME,,}-"
+  #echo $FILENAME
+  #exit
+  $APP_PATH/capture $FILENAME
+else
+  selectImage s
+  if [ $NO_SIGNAL -eq 0 ]
+  then
+    #displayImage no_signal_found.jpg
+    NO_SIGNAL=1
+  fi
+  echo Nothing connected
+fi
+
+# Try again in 2 seconds
+sleep 2
+
+done
+exit

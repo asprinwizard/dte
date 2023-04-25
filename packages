@@ -1,0 +1,21 @@
+#!/bin/bash
+
+sudo apt update
+
+# Install ImageMagick
+#echo Installing ImageMagick
+#sudo apt install imagemagick
+
+# Install PQIV
+echo Installing PQIV
+sudo apt install pqiv
+
+# Install WMCTRL
+#echo Installing WMCTRL
+#sudo apt install wmctrl
+
+#Install XDOTOOL
+echo installing XDOTOOL
+sudo apt install xdotool
+
+echo Packages installed
